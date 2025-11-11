@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url = "file:./dev.db"
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  cardId      String   @unique
+  name        String?
+  email       String?
+  faceEncoding String
+  userType    UserType @default(REGULAR)
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  scanEvents  ScanEvent[]
+  
+  @@map("user_profiles")
+}
+
+model ScanEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      UserProfile? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    ScanStatus
+  timestamp DateTime @default(now())
+  confidence Float?
+  
+  @@map("scan_events")
+}
+
+enum UserType {
+  REGULAR
+  VISITOR
+}
+
+enum ScanStatus {
+  IDENTIFIED
+  DENIED
+  VISITOR
+}
